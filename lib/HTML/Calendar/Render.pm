@@ -128,9 +128,7 @@ sub render_event {
 };
 
 sub render_summary {
-    my ($self, $start) = @_;
-
-    my $day_start = $start->epoch;
+    my ($self, $day_start) = @_;
 
     my @day_events;
     my @allday_events;
@@ -195,8 +193,7 @@ sub render_summary {
 sub render_days {
     my ($self, $start, $end) = @_;
 
-    $start = $start->epoch;
-    $end = $end->epoch;
+    $end = $start if !$end;
 
     my $days = int(($end - $start) / 86400);
 
