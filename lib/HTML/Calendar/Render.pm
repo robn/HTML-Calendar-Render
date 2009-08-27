@@ -1,143 +1,81 @@
 package HTML::Calendar::Render;
 
-use Carp;
-use Net::ICal;
-use POSIX qw(strftime mktime floor);
-use Data::Dumper;
+use Time::Local;
+use POSIX qw(strftime);
 
 our @day_names = ( 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' );
 
 sub new {
     my ($class, %args) = @_;
 
-    my $self = { };
+    my $self = {
+        segment => $args{segment} || 15,
+    };
 
     return bless $self, $class;
 }
 
-sub add_events {
-    my ($self, $events) = @_;
+sub add_event {
+    my ($self, %args) = @_;
 
-    $events = [ $events ] if not ref $events;
+    my ($start, $end) = @args[qw(start end)];
 
-    for my $event (@{$events}) {
-        my ($es, $ee, $allday);
+    # no times provided. its an all day event, today
+    if (!$start && !$end) {
+        $start = timelocal(0,0,0,(localtime)[3,4,5]);
+        $end = 0;
+    }
 
-        if(not $event->dtend) {
-            $es = $event->dtstart->epoch;
-            $allday = 1;
-        } else {
-            $es = $event->dtstart->epoch;
-            $ee = $event->dtend->epoch;
-    
-            $allday = 1 if $es eq $ee;
-        }
+    # only start provided. all day event on that day
+    elsif ($start && !$end) {
+        $start = timelocal(0,0,0,(localtime($start))[3,4,5]);
+        $end = 0;
+    }
 
-        # if we get two (or more) events with the same id, it is:
-        #
-        #  - a recurring event
-        #  - the same event in multiple calendars
-        #
-        # if its a recurring event, then it has a recurrence id
-        # so, if we get an event with the same id but no recurrence id,
-        # its a dupe, and we drop it
-        #
-        # if it has a recurrence id, and we have an event that looks like
-        # it already (same start, end, uid, recurid), its a dupe, drop
-        #
-        # otherwise, we enter it :)
+    # only end provided. all day event on that day
+    elsif (!$start && $end) {
+        $start = timelocal(0,0,0,(localtime($end))[3,4,5]);
+        $end = 0;
+    }
 
-        # same id
-        if($self->{'seen'}->{$event->uid}) {
-            my $rid = $event->recurrence_id;
+    # start and end provided, but end before start. all day event on start day
+    elsif ($end < $start) {
+        $start = timelocal(0,0,0,(localtime($start))[3,4,5]);
+        $end = 0;
+    }
 
-            # not recurring, so its a dupe, skip
-            next if not $rid;
+    my %event;
 
-            # we've seen it, and its recurring, so check it
-            my $dupe = 0;
-            for my $event (@{$self->{'recurring'}->{$event->uid}->{$rid}}) {
+    my %event = (
+        title => $args{title} || "Untitled",
+        start => $start,
+        end   => $end,
+    );
 
-                # all day
-                if(not $event->{'start'} and $allday) {
-                    $dupe = 1;
-                    last;
-                }
+    $event{location} = $args{location} if $args{location};
+    $event{text}     = $args{text}     if $args{text};
 
-                # normal
-                if($event->{'start'} == $es and $event->{'end'} == $ee) {
-                    $dupe = 1;
-                    last;
-                }
-            }
+    if ($end == 0) {
+        push @{$self->{events}->{$start}->{$end}}, \%event;
+    }
 
-            # if its a dupe, bail
-            next if $dupe;
-        }
+    else {
+        # store times along segment boundaries
+        my ($sec, $min, $hour, $mday, $mon, $year) = localtime($start);
 
-        $self->{'seen'}->{$event->uid} = 1;
+        $sec = 0;
+        $min = int($min / $self->{segment} + 0.5) * $self->{segment};
 
-        my %e;
+        my $seg_start = timelocal($sec, $min, $hour, $mday, $mon, $year);
 
-        if($event->summary) {
-            $e{'summary'} = $event->summary;
-            $e{'summary'} =~ s/\\//g;
-        }
-        else {
-            $e{'summary'} = 'Untitled Event';
-        }
+        ($sec, $min, $hour, $mday, $mon, $year) = localtime($end);
 
-        if($event->location) {
-            $e{'location'} = $event->location->{'content'};
-            $e{'location'} =~ s/\\//g;
-        }
+        $sec = 0;
+        $min = int($min / $self->{segment} + 0.5) * $self->{segment};
 
-        if($event->description) {
-            $e{'description'} = $event->description->{'content'};
-            $e{'description'} =~ s/\\[rn]/ /g;
-            $e{'description'} =~ s/\\//g;
-        }
+        my $seg_end = timelocal($sec, $min, $hour, $mday, $mon, $year);
 
-        if($event->organizer) {
-            my $calid = $event->organizer->content;
-            $e{'organizer'} = $calid;
-        }
-
-        if($event->attendee) {
-            for my $attendee (@{$event->attendee}) {
-                my $calid = $attendee->content;
-                push @{$e{'attendee'}}, $calid;
-            }
-        }
-
-        # remember recurring events for next time
-        push @{$self->{'recurring'}{$event->uid}->{$event->recurrence_id}}, \%e if $event->recurrence_id;
-
-        if($allday) {
-            push @{$self->{'events'}->{$es}->{'0'}}, \%e;
-        }
-
-        else {
-            $e{'start'} = $es;
-            $e{'end'} = $ee;
-
-            # store times along segment boundaries
-            my @split = localtime($es);
-
-            $split[0] = 0;
-            $split[1] = floor($split[1] / 15 + 0.5) * 15;
-
-            $es = mktime(@split);
-
-            @split = localtime($ee);
-
-            $split[0] = 0;
-            $split[1] = floor($split[1] / 15 + 0.5) * 15;
-
-            $ee = mktime(@split);
-
-            push @{$self->{'events'}->{$es}->{$ee}}, \%e;
-        }
+        push @{$self->{events}->{$seg_start}->{$seg_end}}, \%e;
     }
 }
 
