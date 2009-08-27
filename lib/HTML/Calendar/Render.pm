@@ -1,5 +1,8 @@
 package HTML::Calendar::Render;
 
+use warnings;
+use strict;
+
 use Time::Local;
 use POSIX qw(strftime);
 
@@ -18,7 +21,7 @@ sub new {
 sub add_event {
     my ($self, %args) = @_;
 
-    my ($start, $end) = @args[qw(start end)];
+    my ($start, $end) = @args{qw(start end)};
 
     # no times provided. its an all day event, today
     if (!$start && !$end) {
@@ -43,8 +46,6 @@ sub add_event {
         $start = timelocal(0,0,0,(localtime($start))[3,4,5]);
         $end = 0;
     }
-
-    my %event;
 
     my %event = (
         title => $args{title} || "Untitled",
@@ -75,7 +76,7 @@ sub add_event {
 
         my $seg_end = timelocal($sec, $min, $hour, $mday, $mon, $year);
 
-        push @{$self->{events}->{$seg_start}->{$seg_end}}, \%e;
+        push @{$self->{events}->{$seg_start}->{$seg_end}}, \%event;
     }
 }
 
@@ -93,7 +94,7 @@ $lcm = sub {
     return &{$lcm}(($a * $b) / &{$gcd}($a, $b), @_);
 };
 
-my $render_event = sub {
+sub render_event {
     my ($self, $event) = @_;
 
     my $out;
@@ -166,7 +167,7 @@ sub render_summary {
                 $hr = 1;
             }
 
-            $out .= &{$render_event}($opts, $event);
+            $out .= $self->render_event($event);
         }
     }
 
@@ -184,7 +185,7 @@ sub render_summary {
                 strftime('%l:%M', localtime($event->{'end'})) .
                 "</p>";
                     
-            $out .= &{$render_event}($opts, $event);
+            $out .= self->render_event($event);
         }
     }
 
@@ -400,7 +401,7 @@ sub render_days {
                 $out .= "<td colspan='$span' bgcolor='#cccccc'>";
             
                 for my $event (@{$allday[$day]}) {
-                    $out .= &{$render_event}($opts, $event);
+                    $out = $self->render_event($event);
                 }
 
                 $out .= "</td>";
@@ -505,7 +506,7 @@ sub render_days {
 
                             $out .= strftime('%l:%M', localtime($event->{'start'})) . " - " . strftime('%l:%M', localtime($event->{'end'}));
                     
-                            $out .= &{$render_event}($event);
+                            $out .= $self->render_event($event);
 
                             $colspan += $event->{'colspan'};
                         }

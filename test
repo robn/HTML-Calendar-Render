@@ -20,6 +20,9 @@ $r->add_event(
     end   => timegm(0,0,11,$mday,$mon,$year),
 );
 
-my $html = $r->render_week(timegm(0,0,10,$mday,$mon,$year));
+use Data::Dumper;
+print Dumper $r;
 
-print $html;
+#my $html = $r->render_week(timegm(0,0,10,$mday,$mon,$year));
+
+#print $html;
