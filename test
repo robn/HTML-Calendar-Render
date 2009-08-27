@@ -16,13 +16,12 @@ my $r = HTML::Calendar::Render->new;
 
 $r->add_event(
     title => "a meeting",
-    start => timegm(0,0,10,$mday,$mon,$year),
-    end   => timegm(0,0,11,$mday,$mon,$year),
+    start => timelocal(0,0,10,$mday,$mon,$year),
+    end   => timelocal(0,0,11,$mday,$mon,$year),
 );
 
 use Data::Dumper;
 print Dumper $r;
 
-#my $html = $r->render_week(timegm(0,0,10,$mday,$mon,$year));
-
-#print $html;
+my $html = $r->render_days(timelocal(0,0,0,$mday,$mon,$year));
+print $html;
