@@ -1,0 +1,25 @@
+#!/usr/bin/env perl
+
+use warnings;
+use strict;
+
+use Time::Local;
+
+use FindBin;
+use lib "$FindBin::Bin/lib";
+
+use HTML::Calendar::Render;
+
+my ($mday, $mon, $year) = (localtime)[3,4,5];
+
+my $r = HTML::Calendar::Render->new;
+
+$r->add_event(
+    title => "a meeting",
+    start => timegm(0,0,10,$mday,$mon,$year),
+    end   => timegm(0,0,11,$mday,$mon,$year),
+);
+
+my $html = $r->render_week(timegm(0,0,10,$mday,$mon,$year));
+
+print $html;
