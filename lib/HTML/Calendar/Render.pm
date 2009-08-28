@@ -259,7 +259,7 @@ sub render_days {
                     next if $event_end == 0;
 
                     # figure out how many segments each event occupies
-                    my $event_segments = int(($event_end - $event_start) / $self->{segment_mins} * 60 + 0.5);
+                    my $event_segments = int(($event_end - $event_start) / ($self->{segment_mins} * 60) + 0.5);
 
                     # link the event into this segment
                     for my $event_segment (0 .. $event_segments - 1) {
