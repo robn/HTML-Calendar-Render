@@ -12,8 +12,13 @@ sub new {
     my ($class, %args) = @_;
 
     my $self = {
-        segment => $args{segment} || 15,
+        segments_per_hour => $args{segments_per_hour} || 4,
+        start_hour        => $args{start_hour}        || 9,
+        end_hour          => $args{end_hour}          || 17,
+        best_fit          => $args{best_fit}          ? 1 : 0,
+        fixed_width       => $args{fixed_width}       ? 1 : 0,
     };
+    $self->{segment_mins} = int(60 / $self->{segments_per_hour});
 
     return bless $self, $class;
 }
@@ -65,14 +70,14 @@ sub add_event {
         my ($sec, $min, $hour, $mday, $mon, $year) = localtime($start);
 
         $sec = 0;
-        $min = int($min / $self->{segment} + 0.5) * $self->{segment};
+        $min = int($min / $self->{segment_mins} + 0.5) * $self->{segment_mins};
 
         my $seg_start = timelocal($sec, $min, $hour, $mday, $mon, $year);
 
         ($sec, $min, $hour, $mday, $mon, $year) = localtime($end);
 
         $sec = 0;
-        $min = int($min / $self->{segment} + 0.5) * $self->{segment};
+        $min = int($min / $self->{segment_mins} + 0.5) * $self->{segment_mins};
 
         my $seg_end = timelocal($sec, $min, $hour, $mday, $mon, $year);
 
@@ -99,30 +104,16 @@ sub render_event {
 
     my $out;
 
-    $out .= "<p><span class='event-summary'>" . $event->{'summary'} . "</span>";
-    $out .= "<br /><span class='event-location'>(" . $event->{'location'} . ")</span>" if $event->{'location'};
+    $out .= "<p><span class='event-title'>" . $event->{title} . "</span>";
+    $out .= "<br /><span class='event-location'>(" . $event->{location} . ")</span>" if $event->{location};
     $out .= "</p>";
 
-    if($self->{'opts'}->{'show_attendees'} and ($event->{'organizer'} or $event->{'attendee'})) {
-        $out .= "<p class='event-attendees'>";
+    $out .= "<p class='event-text'>" . $event->{text} . "</p>" if $event->{text};
 
-        my $br = 0;
-        if($event->{'organizer'}) {
-            $out .= "Organizer: " . $event->{'organizer'};
-            $br = 1;
-        }
-
-        if($event->{'attendee'} and scalar @{$event->{'attendee'}} > 0) {
-            $out .= "<br />" if $br;
-            $out .= "Attendees: " . join(", ", sort @{$event->{'attendee'}});
-        }
-
-        $out .= "</p>";
-    }
-    
-    if($self->{'opts'}->{'show_description'} and $event->{'description'}) {
-        $out .= "<p class='event-description'>" . substr($event->{'description'}, 0, $self->{'opts'}->{'max_description'}) . "</p>";
-    }
+# XXX resurrect this kind of thing   
+#    if($self->{'opts'}->{'show_description'} and $event->{'description'}) {
+#        $out .= "<p class='event-description'>" . substr($event->{'description'}, 0, $self->{'opts'}->{'max_description'}) . "</p>";
+#    }
 
     return $out;
 };
@@ -199,34 +190,34 @@ sub render_days {
 
     # figure out where our table starts and ends on
     my ($start_segment, $end_segment);
-    if($self->{'opts'}->{'best_fit'}) {
-        $start_segment = 23 * 4;
+    if($self->{best_fit}) {
+        $start_segment = 23 * $self->{segments_per_hour};
         $end_segment = 0;
     } else {
-        $start_segment = $self->{'opts'}->{'start_hour'} * 4;
-        $end_segment = $self->{'opts'}->{'end_hour'} * 4;
+        $start_segment = $self->{start_hour} * $self->{segments_per_hour};
+        $end_segment = $self->{end_hour} * $self->{segments_per_hour};
     }
 
-    for my $es (keys %{$self->{'events'}}) {
+    for my $es (keys %{$self->{events}}) {
         next if $es < $start or $es > $end;
 
         # ignore it if there's only all-day events here
-        next if defined $self->{'events'}->{$es}->{'0'} and scalar keys %{$self->{'events'}->{$es}} == 1;
+        next if defined $self->{events}->{$es}->{0} and scalar keys %{$self->{events}->{$es}} == 1;
 
         my ($min, $hour) = (localtime($es))[1,2];
-        my $segment = $hour * 4 + ($min / 15);
+        my $segment = $hour * $self->{segments_per_hour} + ($min / $self->{segment_mins});
         $start_segment = $segment if $segment < $start_segment;
 
-        for my $ee (keys %{$self->{'events'}->{$es}}) {
+        for my $ee (keys %{$self->{events}->{$es}}) {
             next if $ee == 0;
 
             my ($min, $hour) = (localtime($ee))[1,2];
-            my $segment = $hour * 4 + ($min / 15);
+            my $segment = $hour * $self->{segments_per_hour} + ($min / $self->{segment_mins});
             $end_segment = $segment if $segment > $end_segment;
         }
     }
 
-    # each hour of the day is split into four 15-minute segments
+    # each hour of the day is split into a number of segments
     # we generate an list of segments for each day
     # each list element holds a list of events that exist in that segment
     my $num_segments = $end_segment - $start_segment;
@@ -240,41 +231,41 @@ sub render_days {
         my $day_start = $start + ($day * 86400);
 
         # get the all-day events out
-        for my $event_start (keys %{$self->{'events'}}) {
-            next if not defined $self->{'events'}->{$event_start}->{'0'};
+        for my $event_start (keys %{$self->{events}}) {
+            next if not defined $self->{events}->{$event_start}->{0};
 
             next if $event_start < $day_start or $event_start >= $day_start + 86400;
 
-            for my $event (@{$self->{'events'}->{$event_start}->{'0'}}) {
+            for my $event (@{$self->{events}->{$event_start}->{0}}) {
                 push @{$allday[$day]}, $event;
             }
         }
 
         # time of the first segment in our table
-        $day_start += ($start_segment * 900);
+        $day_start += ($start_segment * $self->{segment_mins} * 60);
 
         for my $segment (0 .. $num_segments - 1) {
             # time bounds for this segment
-            my $segment_start = $day_start + ($segment * 900);
-            my $segment_end = $segment_start + 900;
+            my $segment_start = $day_start + ($segment * $self->{segment_mins} * 60);
+            my $segment_end = $segment_start + $self->{segment_mins} * 60;
 
             # find events that start in this segment
-            for my $event_start (keys %{$self->{'events'}}) {
+            for my $event_start (keys %{$self->{events}}) {
                 next if $event_start < $segment_start or $event_start >= $segment_end;
 
                 # check each event that starts here
-                for my $event_end (keys %{$self->{'events'}->{$event_start}}) {
+                for my $event_end (keys %{$self->{events}->{$event_start}}) {
                     # ignore all-day events
                     next if $event_end == 0;
 
                     # figure out how many segments each event occupies
-                    my $event_segments = floor(($event_end - $event_start) / 900 + 0.5);
+                    my $event_segments = int(($event_end - $event_start) / $self->{segment_mins} * 60 + 0.5);
 
                     # link the event into this segment
                     for my $event_segment (0 .. $event_segments - 1) {
-                        for my $event (@{$self->{'events'}->{$event_start}->{$event_end}}) {
-                            $event->{'segment_start'} = $segment;
-                            $event->{'segments'} = $event_segments;
+                        for my $event (@{$self->{events}->{$event_start}->{$event_end}}) {
+                            $event->{segment_start} = $segment;
+                            $event->{segments} = $event_segments;
 
                             push @{$segments[$day]->[$segment + $event_segment]}, $event;
                         }
@@ -285,7 +276,7 @@ sub render_days {
             # number of events on this segment
             if($segments[$day]->[$segment]) {
                 my $num_events = scalar @{$segments[$day]->[$segment]};
-                push @{$day_meta[$day]->{'events'}}, $num_events;
+                push @{$day_meta[$day]->{events}}, $num_events;
             }
 
         }
@@ -307,7 +298,7 @@ sub render_days {
                 # overlapping events for each segment between here and the top
 
                 for my $span_segment ($top_segment .. $segment - 1) {
-                    $day_meta[$day]->{'num_events'}->[$span_segment] = $max_overlap;
+                    $day_meta[$day]->{num_events}->[$span_segment] = $max_overlap;
                 }
 
                 $top_segment = $segment;
@@ -335,7 +326,7 @@ sub render_days {
             }
             if(not $seen) {
                 for my $span_segment ($top_segment .. $segment - 1) {
-                    $day_meta[$day]->{'num_events'}->[$span_segment] = $max_overlap;
+                    $day_meta[$day]->{num_events}->[$span_segment] = $max_overlap;
                 }
 
                 $top_segment = $segment;
@@ -352,31 +343,31 @@ sub render_days {
         }
 
         # got it
-        $day_meta[$day]->{'max_events'} = $max_events;
+        $day_meta[$day]->{max_events} = $max_events;
 
-        if(not $day_meta[$day]->{'events'}) {
-            $day_meta[$day]->{'span'} = 1;
+        if(not $day_meta[$day]->{events}) {
+            $day_meta[$day]->{span} = 1;
         } else {
-            $day_meta[$day]->{'span'} = &{$lcm}(@{$day_meta[$day]->{'events'}}, $max_events);
+            $day_meta[$day]->{span} = &{$lcm}(@{$day_meta[$day]->{'events'}}, $max_events);
 
-            $day_meta[$day]->{'event_span'} = $day_meta[$day]->{'span'} / $max_events;
+            $day_meta[$day]->{event_span} = $day_meta[$day]->{'span'} / $max_events;
         }
         
-        $day_meta[$day]->{'slots'} = [ ];
+        $day_meta[$day]->{slots} = [ ];
     }
 
-    my $col_width = int(92 / ($days + 1));
-    my $time_width = 100 - $col_width * ($days + 1);
+    my $col_width = int(92 / ($days + 1));              # XXX constants
+    my $time_width = 100 - $col_width * ($days + 1);    # XXX constants
 
     my $out =
-        "<table class='calendar' width='100%' border='1' cellpadding='2' cellspacing='0'" . ($self->{'opts'}->{'fixed_width'} ? " style='table-layout: fixed'" : '') . ">\n" .
+        "<table class='calendar' width='100%' border='1' cellpadding='2' cellspacing='0'" . ($self->{fixed_width} ? " style='table-layout: fixed'" : '') . ">\n" .
         "<tr class='calendar-date-bar'><td width='$time_width%'></td>";
 
     for my $day (0 .. $days) {
         my $epoch = $start + $day * 86400;
         my @lt = localtime($epoch);
 
-        my $span = $day_meta[$day]->{'span'};
+        my $span = $day_meta[$day]->{span};
         $out .=
             "<td colspan='$span' width='$col_width%'>" .
             strftime('%A', @lt) . " " .
@@ -392,7 +383,7 @@ sub render_days {
         $out .= "<tr valign='top'><td align='right'>All day</td>";
 
         for my $day (0 .. $days) {
-            my $span = $day_meta[$day]->{'span'};
+            my $span = $day_meta[$day]->{span};
 
             if(defined $allday[$day]) {
                 $out .= "<td colspan='$span' bgcolor='#cccccc'>";
@@ -425,28 +416,28 @@ sub render_days {
                 "</td>";
             $hour++;
         } else {
-            $out .= "<td align='right' class='calendar-minutes'>" . sprintf('%d', $hour_segment * 15) . "</td>";
+            $out .= "<td align='right' class='calendar-minutes'>" . sprintf('%d', $hour_segment * $self->{segment_mins}) . "</td>";
         }
 
         $hour_segment++;
         $hour_segment = 0 if $hour_segment == 4;
 
         for my $day (0 .. $days) {
-            my $self->{'events'} = $segments[$day]->[$segment];
+            my $events = $segments[$day]->[$segment];
 
-            my $span = $day_meta[$day]->{'span'};
-            my $max_events = $day_meta[$day]->{'max_events'};
-            my $slots = $day_meta[$day]->{'slots'};
+            my $span = $day_meta[$day]->{span};
+            my $max_events = $day_meta[$day]->{max_events};
+            my $slots = $day_meta[$day]->{slots};
 
             # clean up slots
             for my $slot (0 .. $max_events - 1) {
                 next if not defined $slots->[$slot];
 
-                $slots->[$slot] = undef if $slots->[$slot]->{'segment_start'} + $slots->[$slot]->{'segments'} == $segment;
+                $slots->[$slot] = undef if $slots->[$slot]->{segment_start} + $slots->[$slot]->{segments} == $segment;
             }
 
             # no events in this segment - blank box
-            if(scalar @{$self->{'events'}} == 0) {
+            if(scalar @$events == 0) {
                 $out .= "<td colspan='$span'>&nbsp;</td>";
             }
 
@@ -454,13 +445,13 @@ sub render_days {
             else {
 
                 # insert new events
-                for my $event (@{$self->{'events'}}) {
+                for my $event (@$events) {
                     # only interested in events that start here
-                    next if $event->{'segment_start'} != $segment;
+                    next if $event->{segment_start} != $segment;
 
                     # got the column width
-                    my $num_events = $day_meta[$day]->{'num_events'}->[$segment];
-                    $event->{'colspan'} = $span / $num_events;
+                    my $num_events = $day_meta[$day]->{num_events}->[$segment];
+                    $event->{colspan} = $span / $num_events;
 
                     # find empty slots and fill them
                     my $fill_slots = 0;
@@ -483,29 +474,29 @@ sub render_days {
                     # if there's nothing in the current slot, just blank it out
                     if(not defined $slots->[$slot]) {
                         $empty++;
-                        $colspan += $day_meta[$day]->{'event_span'};
+                        $colspan += $day_meta[$day]->{event_span};
                     }
                     
                     # there's an event here
                     else {
                         # close the gap
                         if($empty) {
-                            $out .= "<td colspan='" . $empty * $day_meta[$day]->{'event_span'} . "'>&nbsp;</td>";
+                            $out .= "<td colspan='" . $empty * $day_meta[$day]->{event_span} . "'>&nbsp;</td>";
                             $empty = 0;
                         }
 
                         # event starts here, render it
-                        if($slots->[$slot]->{'segment_start'} == $segment) {
+                        if($slots->[$slot]->{segment_start} == $segment) {
 
                             my $event = $slots->[$slot];
 
-                            $out .= "<td colspan='" . $event->{'colspan'} . "' rowspan='" . $event->{'segments'} . "' bgcolor='#cccccc'>";
+                            $out .= "<td colspan='" . $event->{colspan} . "' rowspan='" . $event->{segments} . "' bgcolor='#cccccc'>";
 
-                            $out .= strftime('%l:%M', localtime($event->{'start'})) . " - " . strftime('%l:%M', localtime($event->{'end'}));
+                            $out .= strftime('%l:%M', localtime($event->{start})) . " - " . strftime('%l:%M', localtime($event->{end}));
                     
                             $out .= $self->render_event($event);
 
-                            $colspan += $event->{'colspan'};
+                            $colspan += $event->{colspan};
                         }
                     }
 
@@ -515,7 +506,7 @@ sub render_days {
 
                 # close the gap
                 if($empty) {
-                    $out .= "<td colspan='" . $empty * $day_meta[$day]->{'event_span'} . "'>&nbsp;</td>";
+                    $out .= "<td colspan='" . $empty * $day_meta[$day]->{event_span} . "'>&nbsp;</td>";
                     $empty = 0;
                 }
             }
@@ -533,7 +524,7 @@ sub render_month {
     my ($self, $start) = @_;
 
     my $out =
-        "<table class='calendar' width='100%' border='1' cellpadding='2' cellspacing='0'" . ($self->{'opts'}->{'fixed_width'} ? " style='table-layout: fixed'" : '') . ">\n" .
+        "<table class='calendar' width='100%' border='1' cellpadding='2' cellspacing='0'" . ($self->{fixed_width} ? " style='table-layout: fixed'" : '') . ">\n" .
         "<tr class='calendar-date-bar'>";
 
     for my $day (0..6) {
