@@ -127,16 +127,16 @@ sub render_summary {
 
     my $flag = 0;
 
-    for my $event_start (sort { $a <=> $b } keys %{$self->{'events'}}) {
+    for my $event_start (sort { $a <=> $b } keys %{$self->{events}}) {
         next if $event_start < $day_start or $event_start >= $day_start + 86400;
 
         $flag = 1;
 
-        for my $event_end (sort { $a <=> $b } keys %{$self->{'events'}->{$event_start}}) {
+        for my $event_end (sort { $a <=> $b } keys %{$self->{events}->{$event_start}}) {
             if($event_end == 0) {
-                push @allday_events, @{$self->{'events'}->{$event_start}->{'0'}};
+                push @allday_events, @{$self->{events}->{$event_start}->{0}};
             } else {
-                push @day_events, @{$self->{'events'}->{$event_start}->{$event_end}};
+                push @day_events, @{$self->{events}->{$event_start}->{$event_end}};
             }
         }
     }
@@ -171,8 +171,8 @@ sub render_summary {
 
             $out .=
                 "<p>" .
-                strftime('%l:%M', localtime($event->{'start'})) . " - " .
-                strftime('%l:%M', localtime($event->{'end'})) .
+                strftime('%l:%M', localtime($event->{start})) . " - " .
+                strftime('%l:%M', localtime($event->{end})) .
                 "</p>";
                     
             $out .= self->render_event($event);
