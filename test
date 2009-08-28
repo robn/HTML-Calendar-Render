@@ -20,5 +20,5 @@ $r->add_event(
     end   => timelocal(0,0,11,$mday,$mon,$year),
 );
 
-my $html = $r->render_days(timelocal(0,0,0,23,7,109), timelocal(0,0,0,29,7,109));
+my $html = $r->render_month(timelocal(0,0,0,23,7,109), timelocal(0,0,0,29,7,109));
 print $html;
