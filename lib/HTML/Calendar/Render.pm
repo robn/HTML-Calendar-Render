@@ -175,7 +175,7 @@ sub render_summary {
                 strftime('%l:%M', localtime($event->{end})) .
                 "</p>";
                     
-            $out .= self->render_event($event);
+            $out .= $self->render_event($event);
         }
     }
 
