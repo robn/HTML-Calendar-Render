@@ -183,11 +183,12 @@ sub render_summary {
 }
 
 sub render_days {
-    my ($self, $start, $end) = @_;
+    my ($self, $start, $days) = @_;
 
-    $end = $start if !$end;
+    $days--;
 
-    my $days = int(($end - $start) / 86400);
+    # get start back to the start of the day
+    $start = timelocal(0,0,0, (localtime($start))[3,4,5]);
 
     # figure out where our table starts and ends on
     my ($start_segment, $end_segment);
@@ -200,7 +201,7 @@ sub render_days {
     }
 
     for my $es (keys %{$self->{events}}) {
-        next if $es < $start or $es > $end;
+        next if $es < $start or $es >= $start + 86400;
 
         # ignore it if there's only all-day events here
         next if defined $self->{events}->{$es}->{0} and scalar keys %{$self->{events}->{$es}} == 1;
