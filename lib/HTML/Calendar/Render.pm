@@ -405,7 +405,7 @@ sub render_days {
         $out .= "</tr>\n";
     }
 
-    my $hour = $start_segment / 4;
+    my $hour = $start_segment / $self->{segments_per_hour};
     my $hour_segment = 0;
     for my $segment (0 .. $num_segments - 1) {
         $out .= "<tr valign='top'>";
@@ -422,7 +422,7 @@ sub render_days {
         }
 
         $hour_segment++;
-        $hour_segment = 0 if $hour_segment == 4;
+        $hour_segment = 0 if $hour_segment == $self->{segments_per_hour};
 
         for my $day (0 .. $days) {
             my $events = $segments[$day]->[$segment];
