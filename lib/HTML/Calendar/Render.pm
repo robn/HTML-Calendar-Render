@@ -3,23 +3,38 @@ package HTML::Calendar::Render;
 use warnings;
 use strict;
 
+use Carp;
 use Time::Local;
 use Date::Calc qw(Days_in_Month Day_of_Week);
 use POSIX qw(strftime);
 
 our @day_names = ( 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' );
 
-sub new {
-    my ($class, %args) = @_;
+sub _setup_render_options {
+    my (%args) = @_;
 
-    my $self = {
+    my $opts = {
         segments_per_hour => $args{segments_per_hour} || 4,
         start_hour        => $args{start_hour}        || 9,
         end_hour          => $args{end_hour}          || 17,
         best_fit          => $args{best_fit}          ? 1 : 0,
         fixed_width       => $args{fixed_width}       ? 1 : 0,
     };
-    $self->{segment_mins} = int(60 / $self->{segments_per_hour});
+
+    if (60 / $opts->{segments_per_hour} != int(60 / $opts->{segments_per_hour})) {
+        croak "segments_per_hour must divide evenly into 60";
+    }
+    $opts->{segment_mins} = int(60 / $opts->{segments_per_hour});
+
+    return $opts;
+}
+    
+sub new {
+    my $class = shift;
+
+    my $self = {
+        renderopts => _setup_render_options(@_),
+    };
 
     return bless $self, $class;
 }
@@ -71,14 +86,14 @@ sub add_event {
         my ($sec, $min, $hour, $mday, $mon, $year) = localtime($start);
 
         $sec = 0;
-        $min = int($min / $self->{segment_mins} + 0.5) * $self->{segment_mins};
+        $min = int($min / $self->{renderopts}->{segment_mins} + 0.5) * $self->{renderopts}->{segment_mins};
 
         my $seg_start = timelocal($sec, $min, $hour, $mday, $mon, $year);
 
         ($sec, $min, $hour, $mday, $mon, $year) = localtime($end);
 
         $sec = 0;
-        $min = int($min / $self->{segment_mins} + 0.5) * $self->{segment_mins};
+        $min = int($min / $self->{renderopts}->{segment_mins} + 0.5) * $self->{renderopts}->{segment_mins};
 
         my $seg_end = timelocal($sec, $min, $hour, $mday, $mon, $year);
 
@@ -192,12 +207,12 @@ sub render_days {
 
     # figure out where our table starts and ends on
     my ($start_segment, $end_segment);
-    if($self->{best_fit}) {
-        $start_segment = 23 * $self->{segments_per_hour};
+    if($self->{renderopts}->{best_fit}) {
+        $start_segment = 23 * $self->{renderopts}->{segments_per_hour};
         $end_segment = 0;
     } else {
-        $start_segment = $self->{start_hour} * $self->{segments_per_hour};
-        $end_segment = $self->{end_hour} * $self->{segments_per_hour};
+        $start_segment = $self->{renderopts}->{start_hour} * $self->{renderopts}->{segments_per_hour};
+        $end_segment = $self->{renderopts}->{end_hour} * $self->{renderopts}->{segments_per_hour};
     }
 
     for my $es (keys %{$self->{events}}) {
@@ -207,14 +222,14 @@ sub render_days {
         next if defined $self->{events}->{$es}->{0} and scalar keys %{$self->{events}->{$es}} == 1;
 
         my ($min, $hour) = (localtime($es))[1,2];
-        my $segment = $hour * $self->{segments_per_hour} + ($min / $self->{segment_mins});
+        my $segment = $hour * $self->{renderopts}->{segments_per_hour} + ($min / $self->{renderopts}->{segment_mins});
         $start_segment = $segment if $segment < $start_segment;
 
         for my $ee (keys %{$self->{events}->{$es}}) {
             next if $ee == 0;
 
             my ($min, $hour) = (localtime($ee))[1,2];
-            my $segment = $hour * $self->{segments_per_hour} + ($min / $self->{segment_mins});
+            my $segment = $hour * $self->{renderopts}->{segments_per_hour} + ($min / $self->{renderopts}->{segment_mins});
             $end_segment = $segment if $segment > $end_segment;
         }
     }
@@ -244,12 +259,12 @@ sub render_days {
         }
 
         # time of the first segment in our table
-        $day_start += ($start_segment * $self->{segment_mins} * 60);
+        $day_start += ($start_segment * $self->{renderopts}->{segment_mins} * 60);
 
         for my $segment (0 .. $num_segments - 1) {
             # time bounds for this segment
-            my $segment_start = $day_start + ($segment * $self->{segment_mins} * 60);
-            my $segment_end = $segment_start + $self->{segment_mins} * 60;
+            my $segment_start = $day_start + ($segment * $self->{renderopts}->{segment_mins} * 60);
+            my $segment_end = $segment_start + $self->{renderopts}->{segment_mins} * 60;
 
             # find events that start in this segment
             for my $event_start (keys %{$self->{events}}) {
@@ -261,7 +276,7 @@ sub render_days {
                     next if $event_end == 0;
 
                     # figure out how many segments each event occupies
-                    my $event_segments = int(($event_end - $event_start) / ($self->{segment_mins} * 60) + 0.5);
+                    my $event_segments = int(($event_end - $event_start) / ($self->{renderopts}->{segment_mins} * 60) + 0.5);
 
                     # link the event into this segment
                     for my $event_segment (0 .. $event_segments - 1) {
@@ -362,7 +377,7 @@ sub render_days {
     my $time_width = 100 - $col_width * ($days + 1);    # XXX constants
 
     my $out =
-        "<table class='calendar' width='100%' border='1' cellpadding='2' cellspacing='0'" . ($self->{fixed_width} ? " style='table-layout: fixed'" : '') . ">\n" .
+        "<table class='calendar' width='100%' border='1' cellpadding='2' cellspacing='0'" . ($self->{renderopts}->{fixed_width} ? " style='table-layout: fixed'" : '') . ">\n" .
         "<tr class='calendar-date-bar'><td width='$time_width%'></td>";
 
     for my $day (0 .. $days) {
@@ -405,7 +420,7 @@ sub render_days {
         $out .= "</tr>\n";
     }
 
-    my $hour = $start_segment / $self->{segments_per_hour};
+    my $hour = $start_segment / $self->{renderopts}->{segments_per_hour};
     my $hour_segment = 0;
     for my $segment (0 .. $num_segments - 1) {
         $out .= "<tr valign='top'>";
@@ -418,11 +433,11 @@ sub render_days {
                 "</td>";
             $hour++;
         } else {
-            $out .= "<td align='right' class='calendar-minutes'>" . sprintf('%d', $hour_segment * $self->{segment_mins}) . "</td>";
+            $out .= "<td align='right' class='calendar-minutes'>" . sprintf('%d', $hour_segment * $self->{renderopts}->{segment_mins}) . "</td>";
         }
 
         $hour_segment++;
-        $hour_segment = 0 if $hour_segment == $self->{segments_per_hour};
+        $hour_segment = 0 if $hour_segment == $self->{renderopts}->{segments_per_hour};
 
         for my $day (0 .. $days) {
             my $events = $segments[$day]->[$segment];
@@ -526,7 +541,7 @@ sub render_month {
     my ($self, $start) = @_;
 
     my $out =
-        "<table class='calendar' width='100%' border='1' cellpadding='2' cellspacing='0'" . ($self->{fixed_width} ? " style='table-layout: fixed'" : '') . ">\n" .
+        "<table class='calendar' width='100%' border='1' cellpadding='2' cellspacing='0'" . ($self->{renderopts}->{fixed_width} ? " style='table-layout: fixed'" : '') . ">\n" .
         "<tr class='calendar-date-bar'>";
 
     for my $day (0..6) {
