@@ -548,7 +548,7 @@ sub render_month {
     }
 
     for my $day (0 .. $month_days - 1) {
-        my $summary_out = $self->render_summary($start, $day);
+        my $summary_out = $self->render_summary(timelocal(0, 0, 0, $day+1, $month-1, $year-1900));
 
         if(not $summary_out) {
             $out .= "<td><span class='calendar-month-date'>" . sprintf('%d', $day + 1) . "</span>";
