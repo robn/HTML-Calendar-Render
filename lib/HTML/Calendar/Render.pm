@@ -26,6 +26,12 @@ sub _setup_render_options {
     }
     $opts->{segment_mins} = int(60 / $opts->{segments_per_hour});
 
+    croak "start_hour must be between 0 and 23" if $opts->{start_hour} < 0 or $opts->{start_hour} > 23;
+    croak "start_hour must be an integer" if $opts->{start_hour} != int($opts->{start_hour});
+
+    croak "end_hour must be between 1 and 24" if $opts->{end_hour} < 0 or $opts->{end_hour} > 23;
+    croak "end_hour must be an integer" if $opts->{end_hour} != int($opts->{end_hour});
+
     return $opts;
 }
     
