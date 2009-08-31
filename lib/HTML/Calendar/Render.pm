@@ -107,18 +107,16 @@ sub add_event {
     }
 }
 
-my $gcd;
-$gcd = sub {
+sub _gcd {
     my ($a, $b) = @_;
     return $a if $b == 0;
-    return &{$gcd}($b, $a % $b);
+    return _gcd($b, $a % $b);
 };
 
-my $lcm;
-$lcm = sub {
+sub _lcm {
     my ($a, $b) = (shift, shift);
-    return ($a * $b) / &{$gcd}($a, $b) if scalar @_ == 0;
-    return &{$lcm}(($a * $b) / &{$gcd}($a, $b), @_);
+    return ($a * $b) / _gcd($a, $b) if scalar @_ == 0;
+    return _lcm(($a * $b) / _gcd($a, $b), @_);
 };
 
 sub render_event {
@@ -371,7 +369,7 @@ sub render_days {
         if(not $day_meta[$day]->{events}) {
             $day_meta[$day]->{span} = 1;
         } else {
-            $day_meta[$day]->{span} = &{$lcm}(@{$day_meta[$day]->{'events'}}, $max_events);
+            $day_meta[$day]->{span} = _lcm(@{$day_meta[$day]->{'events'}}, $max_events);
 
             $day_meta[$day]->{event_span} = $day_meta[$day]->{'span'} / $max_events;
         }
