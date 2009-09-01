@@ -417,7 +417,7 @@ sub render_days {
                 $out .= "<td colspan='$span' bgcolor='#cccccc'>";
             
                 for my $event (@{$allday[$day]}) {
-                    $out = $self->render_event($event);
+                    $out .= $self->render_event($event);
                 }
 
                 $out .= "</td>";
