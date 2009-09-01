@@ -17,6 +17,7 @@ my $r = HTML::Calendar::Render->new;
 $r->add_event(
     title    => "a meeting",
     location => "over there",
+    text     => "louis is overpowered. discuss",
     start    => timelocal(0,0,10,$mday,$mon,$year),
     end      => timelocal(0,0,11,$mday,$mon,$year),
     id       => 1,
@@ -24,6 +25,7 @@ $r->add_event(
 $r->add_event(
     title    => "another meeting",
     location => "behind you",
+    text     => "pills here!",
     start    => timelocal(0,0,13,$mday,$mon,$year),
     end      => timelocal(0,0,14,$mday,$mon,$year),
     id       => 2,
