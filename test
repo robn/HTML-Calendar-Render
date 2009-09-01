@@ -12,7 +12,7 @@ use HTML::Calendar::Render;
 
 my ($mday, $mon, $year) = (localtime)[3,4,5];
 
-my $r = HTML::Calendar::Render->new(segments_per_hour => 4);
+my $r = HTML::Calendar::Render->new;
 
 $r->add_event(
     title => "a meeting",
