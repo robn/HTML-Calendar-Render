@@ -1,0 +1,11 @@
+.calendar-event {
+    background-color: #33ee33;
+}
+
+.calendar-event-title {
+    font-weight: bold;
+}
+
+.calendar-event-location {
+    font-style: italic;
+}
