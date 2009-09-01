@@ -18,12 +18,15 @@ $r->add_event(
     title => "a meeting",
     start => timelocal(0,0,10,$mday,$mon,$year),
     end   => timelocal(0,0,11,$mday,$mon,$year),
+    id    => 1,
 );
 $r->add_event(
     title => "another meeting",
     start => timelocal(0,0,13,$mday,$mon,$year),
     end   => timelocal(0,0,14,$mday,$mon,$year),
+    id    => 2,
 );
 
-my $html = $r->render_days(timelocal(0,0,0,$mday,$mon,$year), 7);
+#my $html = $r->render_days(timelocal(0,0,0,$mday,$mon,$year), 7);
+my $html = $r->render_month(timelocal(0,0,0,$mday,$mon,$year));
 print $html;

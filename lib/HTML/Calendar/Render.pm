@@ -82,6 +82,7 @@ sub add_event {
 
     $event{location} = $args{location} if $args{location};
     $event{text}     = $args{text}     if $args{text};
+    $event{id}       = $args{id}       if $args{id};
 
     if ($end == 0) {
         push @{$self->{events}->{$start}->{$end}}, \%event;
@@ -124,11 +125,17 @@ sub render_event {
 
     my $out;
 
+    $out .= "<div class='calendar-event'";
+    $out .= " id='calendar-id-" . $event->{id} . "'" if $event->{id};
+    $out .= ">";
+
     $out .= "<p><span class='event-title'>" . $event->{title} . "</span>";
     $out .= "<br /><span class='event-location'>(" . $event->{location} . ")</span>" if $event->{location};
     $out .= "</p>";
 
     $out .= "<p class='event-text'>" . $event->{text} . "</p>" if $event->{text};
+
+    $out .= "</div>";
 
 # XXX resurrect this kind of thing   
 #    if($self->{'opts'}->{'show_description'} and $event->{'description'}) {
@@ -511,7 +518,7 @@ sub render_days {
 
                             my $event = $slots->[$slot];
 
-                            $out .= "<td colspan='" . $event->{colspan} . "' rowspan='" . $event->{segments} . "' bgcolor='#cccccc'>";
+                            $out .= "<td class='calendar-event-cell' colspan='" . $event->{colspan} . "' rowspan='" . $event->{segments} . "' bgcolor='#cccccc'>";
 
                             $out .= strftime('%l:%M', localtime($event->{start})) . " - " . strftime('%l:%M', localtime($event->{end}));
                     
@@ -576,7 +583,7 @@ sub render_month {
         
         else {
             $out .=
-                "<td bgcolor='#cccccc'>" .
+                "<td class='calendar-month-event-cell' bgcolor='#cccccc'>" .
                 "<span class='calendar-month-date'>" . sprintf('%d', $day + 1) . "</span>" .
                 $summary_out;
         }
