@@ -129,11 +129,11 @@ sub render_event {
     $out .= " id='calendar-id-" . $event->{id} . "'" if $event->{id};
     $out .= ">";
 
-    $out .= "<p><span class='event-title'>" . $event->{title} . "</span>";
-    $out .= "<br /><span class='event-location'>(" . $event->{location} . ")</span>" if $event->{location};
+    $out .= "<p><span class='calendar-event-title'>" . $event->{title} . "</span>";
+    $out .= "<br /><span class='calendar-event-location'>(" . $event->{location} . ")</span>" if $event->{location};
     $out .= "</p>";
 
-    $out .= "<p class='event-text'>" . $event->{text} . "</p>" if $event->{text};
+    $out .= "<p class='calendar-event-text'>" . $event->{text} . "</p>" if $event->{text};
 
     $out .= "</div>";
 
