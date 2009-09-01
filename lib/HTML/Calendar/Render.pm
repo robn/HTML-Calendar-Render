@@ -174,7 +174,7 @@ sub render_summary {
     my $hr = 0;
 
     if(scalar @allday_events > 0) {
-        $out .= "<p>All day</p>";
+        $out .= "<p class=calendar-summary-start-end'>All day</p>";
 
         for my $event (@allday_events) {
             if($hr) {
@@ -196,7 +196,7 @@ sub render_summary {
             }
 
             $out .=
-                "<p>" .
+                "<p class='calendar-summary-start-end'>" .
                 strftime('%l:%M', localtime($event->{start})) . " - " .
                 strftime('%l:%M', localtime($event->{end})) .
                 "</p>";
