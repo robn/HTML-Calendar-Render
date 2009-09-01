@@ -27,6 +27,21 @@ $r->add_event(
     id    => 2,
 );
 
+print <<HTML
+<html>
+<head>
+<link rel='stylesheet' type='text/css' href='test.css' />
+</head>
+<body>  
+HTML
+;
+
 #my $html = $r->render_days(timelocal(0,0,0,$mday,$mon,$year), 7);
 my $html = $r->render_month(timelocal(0,0,0,$mday,$mon,$year));
 print $html;
+
+print <<HTML
+</body>
+</html>
+HTML
+;
