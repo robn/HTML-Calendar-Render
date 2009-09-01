@@ -369,9 +369,9 @@ sub render_days {
         if(not $day_meta[$day]->{events}) {
             $day_meta[$day]->{span} = 1;
         } else {
-            $day_meta[$day]->{span} = _lcm(@{$day_meta[$day]->{'events'}}, $max_events);
+            $day_meta[$day]->{span} = _lcm(@{$day_meta[$day]->{events}}, $max_events);
 
-            $day_meta[$day]->{event_span} = $day_meta[$day]->{'span'} / $max_events;
+            $day_meta[$day]->{event_span} = $day_meta[$day]->{span} / $max_events;
         }
         
         $day_meta[$day]->{slots} = [ ];
