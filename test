@@ -30,6 +30,11 @@ $r->add_event(
     end      => timelocal(0,0,14,$mday,$mon,$year),
     id       => 2,
 );
+$r->add_event(
+    title    => "party day!",
+    start    => timelocal(0,0,0,$mday+1,$mon,$year),
+    allday   => 1,
+);
 
 print <<HTML
 <html>
