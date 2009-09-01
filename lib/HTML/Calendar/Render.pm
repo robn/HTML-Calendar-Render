@@ -408,7 +408,7 @@ sub render_days {
 
     # plug in all-day events if necessary
     if(scalar @allday > 0) {
-        $out .= "<tr valign='top'><td align='right'>All day</td>";
+        $out .= "<tr valign='top'><td align='right' class='calendar-hours-allday'>All day</td>";
 
         for my $day (0 .. $days) {
             my $span = $day_meta[$day]->{span};

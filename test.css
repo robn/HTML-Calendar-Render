@@ -27,7 +27,7 @@
     font-size: smaller;
 }
 
-.calendar-hours {
+.calendar-hours,.calendar-hours-allday {
     font-weight: bold;
 }
 
