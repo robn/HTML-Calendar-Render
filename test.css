@@ -9,3 +9,7 @@
 .calendar-event-location {
     font-style: italic;
 }
+
+.calendar-event-text {
+    font-size: smaller;
+}
