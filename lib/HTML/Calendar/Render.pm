@@ -414,7 +414,7 @@ sub render_days {
             my $span = $day_meta[$day]->{span};
 
             if(defined $allday[$day]) {
-                $out .= "<td colspan='$span' bgcolor='#cccccc'>";
+                $out .= "<td colspan='$span' class='calendar-event-cell' bgcolor='#cccccc'>";
             
                 for my $event (@{$allday[$day]}) {
                     $out .= $self->render_event($event);
