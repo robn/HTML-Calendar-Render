@@ -15,16 +15,18 @@ my ($mday, $mon, $year) = (localtime)[3,4,5];
 my $r = HTML::Calendar::Render->new;
 
 $r->add_event(
-    title => "a meeting",
-    start => timelocal(0,0,10,$mday,$mon,$year),
-    end   => timelocal(0,0,11,$mday,$mon,$year),
-    id    => 1,
+    title    => "a meeting",
+    location => "over there",
+    start    => timelocal(0,0,10,$mday,$mon,$year),
+    end      => timelocal(0,0,11,$mday,$mon,$year),
+    id       => 1,
 );
 $r->add_event(
-    title => "another meeting",
-    start => timelocal(0,0,13,$mday,$mon,$year),
-    end   => timelocal(0,0,14,$mday,$mon,$year),
-    id    => 2,
+    title    => "another meeting",
+    location => "behind you",
+    start    => timelocal(0,0,13,$mday,$mon,$year),
+    end      => timelocal(0,0,14,$mday,$mon,$year),
+    id       => 2,
 );
 
 print <<HTML
@@ -36,8 +38,8 @@ print <<HTML
 HTML
 ;
 
-#my $html = $r->render_days(timelocal(0,0,0,$mday,$mon,$year), 7);
-my $html = $r->render_month(timelocal(0,0,0,$mday,$mon,$year));
+my $html = $r->render_days(timelocal(0,0,0,$mday,$mon,$year), 7);
+#my $html = $r->render_month(timelocal(0,0,0,$mday,$mon,$year));
 print $html;
 
 print <<HTML
