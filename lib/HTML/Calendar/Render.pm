@@ -8,6 +8,8 @@ use Time::Local;
 use Date::Calc qw(Days_in_Month Day_of_Week);
 use POSIX qw(strftime);
 
+our $VERSION = "0.01";
+
 our @day_names = ( 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' );
 
 sub _setup_render_options {
