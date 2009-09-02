@@ -178,7 +178,7 @@ sub render_summary {
 
         for my $event (@allday_events) {
             if($hr) {
-                $out .= "<hr />";
+                $out .= "<hr class='calendar-summary-event-separator' />";
             } else {
                 $hr = 1;
             }
@@ -190,7 +190,7 @@ sub render_summary {
     if(scalar @day_events) {
         for my $event (@day_events) {
             if($hr) {
-                $out .= "<hr />";
+                $out .= "<hr class='calendar-summary-event-separator' />";
             } else {
                 $hr = 1;
             }

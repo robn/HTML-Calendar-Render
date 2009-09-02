@@ -45,3 +45,9 @@
     font-size: larger;
     font-family: serif;
     margin: 0;
+}
+
+.calendar-summary-event-separator {
+    border: solid black 5px;
+    margin: 5px;
+}
