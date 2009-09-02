@@ -655,7 +655,7 @@ Robert Norris (rob@cataclysm.cx)
 
 =head1 BUGS AND LIMITATIONS
 
-This module is based code for a standalone web application that was written
+This module is based on code for a standalone web application that was written
 years ago for a specific purpose (to serve as a temporary read-only calendar
 after a catastrophic server failure). That code was written in a hurry and
 worked wonderfully, but but quite messy and quirky. I've made a good effort to
