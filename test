@@ -45,8 +45,8 @@ print <<HTML
 HTML
 ;
 
-my $html = $r->render_days(timelocal(0,0,0,$mday,$mon,$year), 7);
-#my $html = $r->render_month(timelocal(0,0,0,$mday,$mon,$year));
+#my $html = $r->render_days(timelocal(0,0,0,$mday,$mon,$year), 7);
+my $html = $r->render_month(timelocal(0,0,0,$mday,$mon,$year));
 print $html;
 
 print <<HTML

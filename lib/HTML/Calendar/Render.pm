@@ -174,7 +174,7 @@ sub render_summary {
     my $hr = 0;
 
     if(scalar @allday_events > 0) {
-        $out .= "<p class='calendar-summary-start-end'>All day</p>";
+        $out .= "<span class='calendar-event-timestamp'>All day</span>";
 
         for my $event (@allday_events) {
             if($hr) {
@@ -195,11 +195,7 @@ sub render_summary {
                 $hr = 1;
             }
 
-            $out .=
-                "<p class='calendar-summary-start-end'>" .
-                strftime('%l:%M', localtime($event->{start})) . " - " .
-                strftime('%l:%M', localtime($event->{end})) .
-                "</p>";
+            $out .= "<span class='calendar-event-timestamp'>" . strftime('%l:%M', localtime($event->{start})) . " - " . strftime('%l:%M', localtime($event->{end})) . "</span>";
                     
             $out .= $self->render_event($event);
         }
@@ -520,7 +516,7 @@ sub render_days {
 
                             $out .= "<td class='calendar-event-cell' colspan='" . $event->{colspan} . "' rowspan='" . $event->{segments} . "' bgcolor='#cccccc'>";
 
-                            $out .= "<span class='calendar-event-cell-timestamp'>" . strftime('%l:%M', localtime($event->{start})) . " - " . strftime('%l:%M', localtime($event->{end})) . "</span>";
+                            $out .= "<span class='calendar-event-timestamp'>" . strftime('%l:%M', localtime($event->{start})) . " - " . strftime('%l:%M', localtime($event->{end})) . "</span>";
                     
                             $out .= $self->render_event($event);
 
