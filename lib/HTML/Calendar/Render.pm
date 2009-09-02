@@ -19,7 +19,6 @@ sub _setup_render_options {
         segments_per_hour => $args{segments_per_hour} || 4,
         start_hour        => $args{start_hour}        || 9,
         end_hour          => $args{end_hour}          || 17,
-        fixed_width       => $args{fixed_width}       ? 1 : 0,
     };
 
     if (60 / $opts->{segments_per_hour} != int(60 / $opts->{segments_per_hour})) {
@@ -379,7 +378,7 @@ sub render_days {
     my $time_width = 100 - $col_width * ($days + 1);    # XXX constants
 
     my $out =
-        "<table class='calendar' width='100%' border='1' cellpadding='2' cellspacing='0'" . ($self->{renderopts}->{fixed_width} ? " style='table-layout: fixed'" : '') . ">\n" .
+        "<table class='calendar' width='100%' border='1' cellpadding='2' cellspacing='0'>\n" .
         "<tr class='calendar-date-bar'><td width='$time_width%'></td>";
 
     for my $day (0 .. $days) {
@@ -543,7 +542,7 @@ sub render_month {
     my ($self, $start) = @_;
 
     my $out =
-        "<table class='calendar' width='100%' border='1' cellpadding='2' cellspacing='0'" . ($self->{renderopts}->{fixed_width} ? " style='table-layout: fixed'" : '') . ">\n" .
+        "<table class='calendar' width='100%' border='1' cellpadding='2' cellspacing='0'>\n" .
         "<tr class='calendar-date-bar'>";
 
     for my $day (0..6) {
