@@ -610,3 +610,49 @@ sub render_month {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+HTML::Calender::Render - produce HTML calendars
+
+=head1 SYNOPSIS
+
+    use HTML::Calendar::Render;
+
+    my $r = HTML::Calendar::Render->new;
+
+=head1 DESCRIPTION
+
+HTML::Calendar::Render is a module for generating HTML calendars similar in
+appearance to those provided by calendaring applications.
+
+=head1 AUTHOR
+
+Robert Norris (rob@cataclysm.cx)
+
+=head1 BUGS AND LIMITATIONS
+
+This module is based code for a standalone web application that was written
+years ago for a specific purpose (to serve as a temporary read-only calendar
+after a catastrophic server failure). That code was written in a hurry and
+worked wonderfully, but but quite messy and quirky. I've made a good effort to
+tidy it up and remove some of the warts, but I'm not done yet. There's
+undoubtedly still bugs and other weirdness lurking not far from the surface,
+so take care.
+
+Originally it had no defined interface as such, so the interface described
+here is fairly new and mostly untested. It may be changed in the future.
+
+Please submit bug reports and feature requests to
+C<bug-html-calendar-render@rt.cpan.org> or use the web interface at
+L<http:/rt.cpan.org/NoAuth/ReportBug.html?Queue=HTML-Calendar_Render>.
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2004 Monash University
+
+Copyright (c) 2009 Robert Norris
+
+This module is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
