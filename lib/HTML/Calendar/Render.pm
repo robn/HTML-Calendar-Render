@@ -687,6 +687,8 @@ Like C<start_hour>, but for the end of the day.
 
 =back
 
+=back
+
 =head1 STYLING
 
 =head1 AUTHOR
