@@ -649,6 +649,54 @@ HTML::Calender::Render - produce HTML calendars
 HTML::Calendar::Render is a module for generating HTML calendars similar in
 appearance to those provided by calendaring applications.
 
+Operation is simple. First, you create the Render object. Then, you add one or
+more events to it. Finally, you call a render method to which returns a HTML
+string which you can save to a file or send to a browser.
+
+Methods are included for producing a simple summary of events for a time
+period (eg a day), for producing the traditional day or week view, or for
+showing a full month's worth of events.
+
+The HTML that is returned is designed to be readable as-is by any browser that
+supports HTML tables. In order to allow to you make something nicer the
+returned HTML is littered with class attributes allowing most aspects of the
+calendar to be styled via CSS. See L</STYLING>.
+
+=head1 CONSTRUCTOR
+
+=over 4
+
+=item new
+
+    my $r = HTML::Calendar::Render->new
+
+C<new> creates a Render object. One or more options can be passed to it via
+key/value pairs. These options control aspects of the rendered output.
+
+=over 4
+
+=item segments_per_hour (default: 4)
+
+When rendering a day view, this sets the number of table rows/segments
+displayed for each hour. The default is 4, which produces 15-minute segments.
+Displayed events are rounded to the nearest segment boundary. This number must
+evenly divide 60; if it doesn't you'll get an error.
+
+=item start_hour (default: 9)
+
+When rendering a day view, this sets the start hour of the day. Blank rows
+will be produced between this hour and the first event of the day. If an event
+occurs before this hour, this value will be lowered to allow the event to be
+fully displayed.
+
+=item end_hour (default: 17)
+
+Like C<start_hour>, but for the end of the day.
+
+=back
+
+=head1 STYLING
+
 =head1 AUTHOR
 
 Robert Norris (rob@cataclysm.cx)
