@@ -11,6 +11,10 @@
     background-color: #ee3333;
 }
 
+.calendar-event-cell-timestamp {
+    font-family: monospace;
+}
+
 .calendar-event {
     background-color: #33ee33;
 }

@@ -520,7 +520,7 @@ sub render_days {
 
                             $out .= "<td class='calendar-event-cell' colspan='" . $event->{colspan} . "' rowspan='" . $event->{segments} . "' bgcolor='#cccccc'>";
 
-                            $out .= strftime('%l:%M', localtime($event->{start})) . " - " . strftime('%l:%M', localtime($event->{end}));
+                            $out .= "<span class='calendar-event-cell-timestamp'>" . strftime('%l:%M', localtime($event->{start})) . " - " . strftime('%l:%M', localtime($event->{end})) . "</span>";
                     
                             $out .= $self->render_event($event);
 
