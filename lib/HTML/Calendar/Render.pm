@@ -689,6 +689,28 @@ Like C<start_hour>, but for the end of the day.
 
 =back
 
+=head1 ADDING EVENTS
+
+=over 4
+
+=item add_event
+
+The C<add_event> method is used to add an event. 
+
+=back
+
+=head1 RENDERING
+
+=over 4
+
+=item render_days
+
+=item render_month
+
+=item render_summary
+
+=back
+
 =head1 STYLING
 
 =head1 AUTHOR
