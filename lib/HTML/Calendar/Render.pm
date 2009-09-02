@@ -19,7 +19,6 @@ sub _setup_render_options {
         segments_per_hour => $args{segments_per_hour} || 4,
         start_hour        => $args{start_hour}        || 9,
         end_hour          => $args{end_hour}          || 17,
-        best_fit          => $args{best_fit}          ? 1 : 0,
         fixed_width       => $args{fixed_width}       ? 1 : 0,
     };
 
@@ -215,14 +214,8 @@ sub render_days {
     $start = timelocal(0,0,0, (localtime($start))[3,4,5]);
 
     # figure out where our table starts and ends on
-    my ($start_segment, $end_segment);
-    if($self->{renderopts}->{best_fit}) {
-        $start_segment = 23 * $self->{renderopts}->{segments_per_hour};
-        $end_segment = 0;
-    } else {
-        $start_segment = $self->{renderopts}->{start_hour} * $self->{renderopts}->{segments_per_hour};
-        $end_segment = $self->{renderopts}->{end_hour} * $self->{renderopts}->{segments_per_hour};
-    }
+    my $start_segment = $self->{renderopts}->{start_hour} * $self->{renderopts}->{segments_per_hour};
+    my $end_segment = $self->{renderopts}->{end_hour} * $self->{renderopts}->{segments_per_hour};
 
     for my $es (keys %{$self->{events}}) {
         next if $es < $start or $es >= $start + (86400 * $days+1);
