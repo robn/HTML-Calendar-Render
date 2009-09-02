@@ -225,7 +225,7 @@ sub render_days {
     }
 
     for my $es (keys %{$self->{events}}) {
-        next if $es < $start or $es >= $start + 86400;
+        next if $es < $start or $es >= $start + (86400 * $days+1);
 
         # ignore it if there's only all-day events here
         next if defined $self->{events}->{$es}->{0} and scalar keys %{$self->{events}->{$es}} == 1;
