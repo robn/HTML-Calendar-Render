@@ -620,8 +620,29 @@ HTML::Calender::Render - produce HTML calendars
 =head1 SYNOPSIS
 
     use HTML::Calendar::Render;
+    use Date::Parse;
 
     my $r = HTML::Calendar::Render->new;
+
+    $r->add_event(title    => "meeting with the boss",
+                  location => "meeting room 2",
+                  start    => str2time("Wed 02 Sep 2009 10:00"),
+                  end      => str2time("Wed 02 Sep 2009 11:00"),
+                 );
+
+    $r->add_event(title    => "dinner and drinks",
+                  location => "nice pub",
+                  start    => str2time("Thu 03 Sep 2009 18:00"),
+                  end      => str2time("Thu 03 Sep 2009 22:00"),
+                  text     => "meeting dave there at 6pm. his number is 0457328653",
+                 );
+
+    $r->add_event(title    => "long weekend!",
+                  start    => str2time("Fri 04 Sep 2009"),
+                  allday   => 1,
+                 );
+
+    print $r->render_days(str2time("Mon 31 Aug 2009"), 7);
 
 =head1 DESCRIPTION
 
