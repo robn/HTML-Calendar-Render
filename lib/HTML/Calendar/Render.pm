@@ -574,13 +574,13 @@ sub render_month {
         my $summary_out = $self->render_summary(timelocal(0, 0, 0, $day+1, $month-1, $year-1900));
 
         if(not $summary_out) {
-            $out .= "<td><span class='calendar-month-date'>" . sprintf('%d', $day + 1) . "</span>";
+            $out .= "<td><p class='calendar-month-day'>" . sprintf('%d', $day + 1) . "</p>";
         }
         
         else {
             $out .=
                 "<td class='calendar-month-event-cell' bgcolor='#cccccc'>" .
-                "<span class='calendar-month-date'>" . sprintf('%d', $day + 1) . "</span>" .
+                "<p class='calendar-month-day'>" . sprintf('%d', $day + 1) . "</p>" .
                 $summary_out;
         }
 

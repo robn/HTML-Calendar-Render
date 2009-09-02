@@ -39,3 +39,9 @@
     font-weight: bold;
     font-size: smaller;
 }
+
+.calendar-month-day {
+    font-weight: bold;
+    font-size: larger;
+    font-family: serif;
+    margin: 0;
