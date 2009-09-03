@@ -749,8 +749,18 @@ current month.
 
 =back
 
-=item render_summary
+=item render_summary ($time)
 
+Produces a HTML fragment with summary of events for a given day. This is the
+same summary that is used in the calendar produced by C<render_month>. It does
+not use any table markup and so can be embedded inside other HTML.
+
+Arguments:
+
+=item $time
+
+Day to render, in seconds since the epoch. The actual time can fall anywhere
+on the wanted date, so you can call C<time()> if you want to start with today.
 =back
 
 =head1 STYLING
