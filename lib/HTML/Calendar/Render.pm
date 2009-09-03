@@ -611,30 +611,30 @@ HTML::Calender::Render - produce HTML calendars
 
 =head1 SYNOPSIS
 
-    use HTML::Calendar::Render;
-    use Date::Parse;
+ use HTML::Calendar::Render;
+ use Date::Parse;
 
-    my $r = HTML::Calendar::Render->new;
+ my $r = HTML::Calendar::Render->new;
 
-    $r->add_event(title    => "meeting with the boss",
-                  location => "meeting room 2",
-                  start    => str2time("Wed 02 Sep 2009 10:00"),
-                  end      => str2time("Wed 02 Sep 2009 11:00"),
-                 );
+ $r->add_event(title    => "meeting with the boss",
+               location => "meeting room 2",
+               start    => str2time("Wed 02 Sep 2009 10:00"),
+               end      => str2time("Wed 02 Sep 2009 11:00"),
+              );
 
-    $r->add_event(title    => "dinner and drinks",
-                  location => "nice pub",
-                  start    => str2time("Thu 03 Sep 2009 18:00"),
-                  end      => str2time("Thu 03 Sep 2009 22:00"),
-                  text     => "meeting dave there at 6pm. his number is 0457328653",
-                 );
+ $r->add_event(title    => "dinner and drinks",
+               location => "nice pub",
+               start    => str2time("Thu 03 Sep 2009 18:00"),
+               end      => str2time("Thu 03 Sep 2009 22:00"),
+               text     => "meeting dave there at 6pm. his number is 0457328653",
+              );
 
-    $r->add_event(title    => "long weekend!",
-                  start    => str2time("Fri 04 Sep 2009"),
-                  allday   => 1,
-                 );
+ $r->add_event(title    => "long weekend!",
+               start    => str2time("Fri 04 Sep 2009"),
+               allday   => 1,
+              );
 
-    print $r->render_days(str2time("Mon 31 Aug 2009"), 7);
+ print $r->render_days(str2time("Mon 31 Aug 2009"), 7);
 
 =head1 DESCRIPTION
 
@@ -660,7 +660,7 @@ calendar to be styled via CSS. See L</STYLING>.
 
 =item new
 
-    my $r = HTML::Calendar::Render->new
+ my $r = HTML::Calendar::Render->new
 
 C<new> creates a Render object. One or more options can be passed to it via
 key/value pairs. These options control aspects of the rendered output.
@@ -705,7 +705,7 @@ The C<add_event> method is used to add an event.
 
 =item render_days ($time, $ndays)
 
-    my $html = $r->render_days(str2time("Mon, 31 Aug 2009"), 5);
+ my $html = $r->render_days(str2time("Mon, 31 Aug 2009"), 5);
 
 Produces a HTML table containing a rendering of one or more days in the
 traditional "day/week view" style. That is, each day is split vertically into
@@ -731,7 +731,7 @@ Number of days to render.
 
 =item render_month ($time)
 
-    my $html = $r->render_month(time());
+ my $html = $r->render_month(time());
 
 Produces a HTML table containing a rendering of a full month with one week per
 row. Each day has its events listed in a summary format produced by
@@ -750,6 +750,8 @@ current month.
 =back
 
 =item render_summary ($time)
+
+ my $html = $r->render_summary(time());
 
 Produces a HTML fragment with summary of events for a given day. This is the
 same summary that is used in the calendar produced by C<render_month>. It does
