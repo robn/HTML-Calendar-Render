@@ -703,7 +703,25 @@ The C<add_event> method is used to add an event.
 
 =over 4
 
-=item render_days
+=item render_days ($time, $ndays)
+
+    my $html = $r->render_days(str2time("Mon, 31 Aug 2009"), 5);
+
+Produces a HTML table containing a rendering of one or more days in the traditional "day/week view" style. That is, each day is split vertically into a number of equal-sized segments and events are displayed covering one or more segments. If multiple events overlap a particular time period, they are displayed side-by-side.
+
+Arguments:
+
+=over 4
+
+=item $time
+
+First day to render, in seconds since the epoch. The actual time can fall anywhere on the wanted date, so you can call C<time()> if you want to start with today.
+
+=item $ndays (default: 1)
+
+Number of days to render.
+
+=back
 
 =item render_month
 
