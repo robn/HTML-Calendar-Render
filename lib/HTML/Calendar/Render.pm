@@ -767,6 +767,26 @@ on the wanted date, so you can call C<time()> if you want to start with today.
 
 =head1 STYLING
 
+Almost every element aspect of the HTML produced by the render methods is
+stylable via CSS. The following classes are used:
+
+=over 4
+
+=item calendar-event
+=item calendar-event-title
+=item calendar-event-location
+=item calendar-event-text
+=item calendar-event-timestamp
+=item calendar-event-cell
+=item calender-summary-event-separator
+=item calendar
+=item calendar-date-bar
+=item calendar-hours
+=item calendar-hours-allday
+=item calendar-minutes
+
+=back
+
 =head1 AUTHOR
 
 Robert Norris (rob@cataclysm.cx)
