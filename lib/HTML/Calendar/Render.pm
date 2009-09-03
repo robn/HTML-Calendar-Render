@@ -120,7 +120,7 @@ sub _lcm {
     return _lcm(($a * $b) / _gcd($a, $b), @_);
 };
 
-sub render_event {
+sub _render_event {
     my ($self, $event) = @_;
 
     my $out;
@@ -183,7 +183,7 @@ sub render_summary {
                 $hr = 1;
             }
 
-            $out .= $self->render_event($event);
+            $out .= $self->_render_event($event);
         }
     }
 
@@ -197,7 +197,7 @@ sub render_summary {
 
             $out .= "<span class='calendar-event-timestamp'>" . strftime('%l:%M', localtime($event->{start})) . " - " . strftime('%l:%M', localtime($event->{end})) . "</span>";
                     
-            $out .= $self->render_event($event);
+            $out .= $self->_render_event($event);
         }
     }
 
@@ -407,7 +407,7 @@ sub render_days {
                 $out .= "<td colspan='$span' class='calendar-event-cell' bgcolor='#cccccc'>";
             
                 for my $event (@{$allday[$day]}) {
-                    $out .= $self->render_event($event);
+                    $out .= $self->_render_event($event);
                 }
 
                 $out .= "</td>";
@@ -512,7 +512,7 @@ sub render_days {
 
                             $out .= "<span class='calendar-event-timestamp'>" . strftime('%l:%M', localtime($event->{start})) . " - " . strftime('%l:%M', localtime($event->{end})) . "</span>";
                     
-                            $out .= $self->render_event($event);
+                            $out .= $self->_render_event($event);
 
                             $colspan += $event->{colspan};
                         }
