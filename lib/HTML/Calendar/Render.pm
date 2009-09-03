@@ -723,7 +723,25 @@ Number of days to render.
 
 =back
 
-=item render_month
+=item render_month ($time)
+
+    my $html = $r->render_month(time());
+
+Produces a HTML table containing a rendering of a full month with one week per
+row. Each day has its events listed in a summary format produced by
+C<render_summary>.
+
+Arguments:
+
+=over 4
+
+=item $time
+
+Month to render, in seconds since the epoch. The actual time can fall anywhere
+on the wanted month, so you can call C<time()> if you want to render the
+current month.
+
+=back
 
 =item render_summary
 
